@@ -1,0 +1,6 @@
+filter:
+    excluded_paths:
+        - "Tests/"
+tools:
+    external_code_coverage:
+        timeout: 900

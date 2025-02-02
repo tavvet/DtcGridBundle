@@ -1,0 +1,73 @@
+services:
+    dtc_grid.renderer.factory:
+        public: true
+        class: Dtc\GridBundle\Grid\Renderer\RendererFactory
+        arguments:
+            - "@router"
+            - "@translator"
+            -
+                theme.css: '%dtc_grid.theme.css%'
+                theme.js: '%dtc_grid.theme.js%'
+                page_div_style: '%dtc_grid.page_div_style%'
+                jquery: '%dtc_grid.jquery%'
+                purl: '%dtc_grid.purl%'
+                table.options: '%dtc_grid.table_options%'
+                jq_grid.css: '%dtc_grid.jq_grid.css%'
+                jq_grid.js: '%dtc_grid.jq_grid.js%'
+                jq_grid.local.css: '%dtc_grid.jq_grid.local.css%'
+                jq_grid.local.js: '%dtc_grid.jq_grid.local.js%'
+                jq_grid.options: '%dtc_grid.jq_grid.options%'
+                datatables.css: '%dtc_grid.datatables.css%'
+                datatables.js: '%dtc_grid.datatables.js%'
+                datatables.local.css: '%dtc_grid.datatables.local.css%'
+                datatables.local.js: '%dtc_grid.datatables.local.js%'
+                datatables.class: '%dtc_grid.datatables.class%'
+                datatables.options: '%dtc_grid.datatables.options%'
+    dtc_grid.command.source_list:
+        public: true
+        class: Dtc\GridBundle\Command\SourceListCommand
+        calls:
+            - [ "setGridSourceManager", ['@dtc_grid.manager.source'] ]
+        tags:
+            - { name: console.command }
+    dtc_grid.command.generate_grid_source:
+        public: true
+        class: Dtc\GridBundle\Command\GenerateGridSourceCommand
+        calls:
+            - [ "setRegistry", ['@?doctrine'] ]
+            - [ "setMongoDBRegistry", ['@?doctrine_mongodb'] ]
+            - [ "setEntityManager", ['@?doctrine.orm.default_entity_manager'] ]
+            - [ "setDocumentManager", ['@?doctrine_mongodb.odm.default_document_manager'] ]
+        tags:
+            - { name: console.command }
+    dtc_grid.column.source:
+        public: true
+        class: Dtc\GridBundle\Grid\Source\ColumnSource
+        arguments:
+            - "%kernel.cache_dir%"
+            - "%kernel.debug%"
+    dtc_grid.manager.source:
+        public: true
+        class: Dtc\GridBundle\Manager\GridSourceManager
+        arguments:
+            - "@dtc_grid.column.source"
+        calls:
+            - [ 'setReader', ['@?annotation_reader']]
+            - [ 'setReflectionAllowedEntities', ['%dtc_grid.reflection.allowed_entities%']]
+    dtc_grid.twig.extension:
+        class: Dtc\GridBundle\Twig\Extension\TwigExtension
+        tags:
+            - { name: twig.extension }
+    dtc_grid.command.source.list:
+        class: Dtc\GridBundle\Command\SourceListCommand
+        tags:
+            - { name: 'console.command' }
+    dtc_grid.command.source.generate:
+        class: Dtc\GridBundle\Command\GenerateGridSourceCommand
+        tags:
+            - { name: 'console.command' }
+    dtc_grid.controller.grid:
+        public: true
+        class: Dtc\GridBundle\Controller\GridController
+        arguments:
+            - "@service_container"
